@@ -12,16 +12,23 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       unpackPhase = pkgName: ''
-        undmg $src
-        7z x '${pkgName}'
-        7z x 'Payload~'
+        case "$src" in
+          *.dmg)
+            undmg $src
+            7z x '${pkgName}'
+            7z x 'Payload~'
+            ;;
+          *.ttf)
+            fontforge -lang=pe -c "Open(\$1);Select('fi');SelectMore('fl');DetachAndRemoveGlyphs();Generate('${pkgName}')" "$src"
+            ;;
+        esac
       '';
       commonInstall = ''
         mkdir -p $out/share/fonts
         mkdir -p $out/share/fonts/opentype
         mkdir -p $out/share/fonts/truetype
       '';
-      commonBuildInputs = with pkgs; [undmg p7zip];
+      commonBuildInputs = with pkgs; [undmg p7zip fontforge];
       makeAppleFont = name: pkgName: src:
         pkgs.stdenv.mkDerivation {
           inherit name src;
@@ -81,6 +88,10 @@
           url = "https://devimages-cdn.apple.com/design/resources/download/NY.dmg";
           hash = "sha256-HuAgyTh+Z1K+aIvkj5VvL6QqfmpMj6oLGGXziAM5C+A=";
         };
+        menlo-src = {
+          url = "https://github.com/cristianvogel/NEL_VCS/raw/9fbccaee876da301e5821b8287f850e55e18dcc7/resources/fonts/Menlo.ttf";
+          hash = "sha256-BjAj2bj6V/2SWyOsYVuZSrBKFHlNyA/8jHJK+vRBKLM=";
+        };
       in rec {
         sf-pro = makeAppleFont "sf-pro" "SF Pro Fonts.pkg" (pkgs.fetchurl sf-pro-src);
         sf-pro-nerd = makeNerdAppleFont "sf-pro-nerd" "SF Pro Fonts.pkg" (pkgs.fetchurl sf-pro-src);
@@ -96,6 +107,9 @@
 
         ny = makeAppleFont "ny" "NY Fonts.pkg" (pkgs.fetchurl ny-src);
         ny-nerd = makeNerdAppleFont "ny-nerd" "NY Fonts.pkg" (pkgs.fetchurl ny-src);
+
+        menlo = makeAppleFont "menlo" "Menlo.ttf" (pkgs.fetchurl menlo-src);
+        menlo-nerd = makeNerdAppleFont "menlo-nerd" "Menlo Nerd Font.ttf" (pkgs.fetchurl menlo-src);
       };
     });
 }
