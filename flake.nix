@@ -56,7 +56,7 @@
           setSourceRoot = "sourceRoot=`pwd`";
 
           buildPhase = ''
-            find -name \*.ttf -o -name \*.otf -print0 | parallel -j $NIX_BUILD_CORES -0 nerd-font-patcher -c {}
+            find \( -name \*.ttf -o -name \*.otf \) -print0 | parallel -j $NIX_BUILD_CORES -0 nerd-font-patcher -c {}
           '';
 
           installPhase =
@@ -109,7 +109,7 @@
         ny-nerd = makeNerdAppleFont "ny-nerd" "NY Fonts.pkg" (pkgs.fetchurl ny-src);
 
         menlo = makeAppleFont "menlo" "Menlo.ttf" (pkgs.fetchurl menlo-src);
-        menlo-nerd = makeNerdAppleFont "menlo-nerd" "Menlo Nerd Font.ttf" (pkgs.fetchurl menlo-src);
+        menlo-nerd = makeNerdAppleFont "menlo-nerd" "Menlo.ttf" (pkgs.fetchurl menlo-src);
       };
     });
 }
