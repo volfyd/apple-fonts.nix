@@ -52,7 +52,31 @@
           unpackPhase = unpackPhase pkgName;
 
           buildInputs = with pkgs;
-            commonBuildInputs ++ [parallel nerd-font-patcher];
+            commonBuildInputs
+            ++ [
+              parallel
+              (nerd-font-patcher.overridePythonAttrs
+                (old: rec {
+                  version = "3.0.0";
+                  src = fetchFromGitHub {
+                    owner = "ryanoasis";
+                    repo = "nerd-fonts";
+                    rev = "v${version}";
+                    sparseCheckout = [
+                      "/bin/scripts/name_parser"
+                      "font-patcher"
+                      "/src/glyphs"
+                    ];
+                    sha256 = "sha256-La9s0t7fUE9JP0YSXoxQtU7oR3LF3Vu3KdqfEV2Hsn8=";
+                  };
+                  installPhase = ''
+                    mkdir -p $out/bin $out/share/nerd-font-patcher
+                    install -Dm755 font-patcher $out/bin/nerd-font-patcher
+                    cp -ra bin $out/bin
+                    cp -ra src/glyphs $out/share/nerd-font-patcher
+                  '';
+                }))
+            ];
           setSourceRoot = "sourceRoot=`pwd`";
 
           buildPhase = ''
