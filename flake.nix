@@ -57,7 +57,7 @@
               parallel
               (nerd-font-patcher.overridePythonAttrs
                 (old: rec {
-                  version = "3.0.0";
+                  version = assert old.version == "2.2.2"; "3.0.0";
                   src = fetchFromGitHub {
                     owner = "ryanoasis";
                     repo = "nerd-fonts";
